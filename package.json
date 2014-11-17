@@ -11,5 +11,11 @@
     "mocha": "^1.21.4",
     "request": "^2.34.0",
     "chai": "^1.9.0"
+  },
+  "dependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.1",
+    "request": "^2.48.0",
+    "underscore": "^1.7.0"
   }
 }
