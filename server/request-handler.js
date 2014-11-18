@@ -1,4 +1,8 @@
 var _ = require('underscore');
+
+var fs = require('fs');
+
+
 var messages = [];
 var requestHandler = function(request, response) {
 
@@ -7,28 +11,38 @@ var requestHandler = function(request, response) {
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
-  var data = {results: messages};
-
+  var chunk = {results: messages};
+  //need to get rid of messages eventually
+  //replace with the data txt;
   var parsedURL = request.url.slice(1).split('/');
-
+  if (request.method === 'OPTIONS') {
+    response.writeHead(statusCode, headers);
+    return response.end();
+  }
   if(parsedURL[0] === 'classes') {
     if (request.method === 'GET') {
       response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(data));
+      response.end(JSON.stringify(chunk));
+      var wstream = fs.createWriteStream('data.txt');
+      wstream.write(JSON.stringify(chunk));
+      wstream.end();
     }
     else if (request.method === 'POST') {
       statusCode = 201;
-      var content = '';
-      request.on('data', function(data) {
-        content += data;
+      var body = '';
+      request.on('data', function(chunk) {
+        body += chunk;
       });
       request.on('end', function() {
-        var post = JSON.parse(content);
+        var wstream = fs.createWriteStream('data.txt');
+        wstream.write(JSON.stringify(chunk));
+        wstream.end();
+        var post = JSON.parse(body);
         _.extend(post, {createdAt: new Date()});
         messages.push(post);
         // End this resspone after we've added the message
         response.writeHead(statusCode, headers);
-        response.end(JSON.stringify(data));
+        response.end();
       });
     }
   }

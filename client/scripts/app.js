@@ -48,6 +48,7 @@ $(function() {
         success: function (data) {
           console.log('chatterbox: Message sent');
           // Trigger a fetch to update the messages, pass true to animate
+
           app.fetch();
         },
         error: function (data) {
@@ -161,7 +162,8 @@ $(function() {
         $message.text(data.text).appendTo($chat);
 
         // Add the message to the UI
-        app.$chats.append($chat);
+        // app.$chats.prepend($chat);
+        $chat.hide().prependTo(app.$chats).fadeIn(1000);
       }
     },
     addFriend: function(evt) {
@@ -216,18 +218,18 @@ $(function() {
       };
 
       app.send(message);
-
+      app.addMessage(message);
       // Stop the form from submitting
       evt.preventDefault();
     },
     startSpinner: function(){
-      $('.spinner img').show();
-      $('form input[type=submit]').attr('disabled', "true");
+      // $('.spinner img').show();
+      // $('form input[type=submit]').attr('disabled', "true");
     },
 
     stopSpinner: function(){
-      $('.spinner img').fadeOut('fast');
-      $('form input[type=submit]').attr('disabled', null);
+      // $('.spinner img').fadeOut('fast');
+      // $('form input[type=submit]').attr('disabled', null);
     }
   };
 }());
