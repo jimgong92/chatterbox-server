@@ -1,17 +1,29 @@
 var _ = require('underscore');
-
 var fs = require('fs');
-
-
+//Data Storage
 var messages = [];
+var chunk = {results: messages};
+var readable = fs.createReadStream('data.json');
+//Setup readStream
+readable.on('readable', function(){
+  console.log("Ready to read");
+});
+//Read data
+readable.on('data', function(data) {
+  var _chunk = JSON.parse(data.toString());
+  for (var i = 0; i < _chunk.results.length; i++) {
+    chunk.results.push(_chunk.results[i]);
+  }
+});
+readable.on('end', function() {
+  console.log("Data read.");
+});
 var requestHandler = function(request, response) {
-
   console.log("Serving request type " + request.method + " for url " + request.url);
-
+  console.log(chunk.results);
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
-  var chunk = {results: messages};
   //need to get rid of messages eventually
   //replace with the data txt;
   var parsedURL = request.url.slice(1).split('/');
@@ -21,11 +33,13 @@ var requestHandler = function(request, response) {
   }
   if(parsedURL[0] === 'classes') {
     if (request.method === 'GET') {
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(chunk));
-      var wstream = fs.createWriteStream('data.txt');
+
+      var wstream = fs.createWriteStream('data.json');
       wstream.write(JSON.stringify(chunk));
       wstream.end();
+
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(chunk));
     }
     else if (request.method === 'POST') {
       statusCode = 201;
@@ -34,7 +48,7 @@ var requestHandler = function(request, response) {
         body += chunk;
       });
       request.on('end', function() {
-        var wstream = fs.createWriteStream('data.txt');
+        var wstream = fs.createWriteStream('data.json');
         wstream.write(JSON.stringify(chunk));
         wstream.end();
         var post = JSON.parse(body);
@@ -42,7 +56,8 @@ var requestHandler = function(request, response) {
         messages.push(post);
         // End this resspone after we've added the message
         response.writeHead(statusCode, headers);
-        response.end();
+
+        response.end(JSON.stringify(chunk));
       });
     }
   }

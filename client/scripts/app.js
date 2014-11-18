@@ -64,7 +64,6 @@ $(function() {
         data: { order: '-createdAt'},
         success: function(data) {
           console.log('chatterbox: Messages fetched');
-
           // Don't bother if we have nothing to work with
           if (!data.results || !data.results.length) { return; }
 
@@ -74,6 +73,7 @@ $(function() {
           app.stopSpinner();
           // Only bother updating the DOM if we have a new message
           if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
+
             // Update the UI with the fetched rooms
             app.populateRooms(data.results);
 
