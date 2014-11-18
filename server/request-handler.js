@@ -13,8 +13,8 @@ var requestHandler = function(request, response) {
 
   if(parsedURL[0] === 'classes') {
     if (request.method === 'GET') {
-
-
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(data));
     }
     else if (request.method === 'POST') {
       statusCode = 201;
@@ -26,15 +26,17 @@ var requestHandler = function(request, response) {
         var post = JSON.parse(content);
         _.extend(post, {createdAt: new Date()});
         messages.push(post);
+        // End this resspone after we've added the message
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify(data));
       });
     }
   }
   else {
     statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
   }
-
-  response.writeHead(statusCode, headers);
-  response.end(JSON.stringify(data));
 };
 
 var defaultCorsHeaders = {
